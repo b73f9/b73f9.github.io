@@ -68,8 +68,12 @@ Let's remove the ceiling from the map using python for a simple mitm attack. <br
 <br>
 <img src="mitm.png"><br>
 <br>
-After adding ```127.0.0.1 jhtc4bsk.jhtc.pl``` to /etc/hosts, <br>
-and starting the program, the task is solved.<br>
+What does this code do? <br>It listens on port 31337 for incoming connections, and when one is estabilished, 
+it connects to the original labyrinth server relaying traffic back and forth. <br>
+When the authentication success message is detected, it changes every message coming from the server (at that point, server only responds with column descriptions, or kick messages, we don't care what happens if we get kicked) so that it starts with a 0 - effectively removing the ceiling from the map.
+<br>
+<br>(Side note: this code assumes that the column descriptions are received entirely, and one by one. <br>This doesn't always have to be the case, but it works well enough.)<br><br>
+After adding "127.0.0.1 jhtc4bsk.jhtc.pl" to /etc/hosts and starting the program, the task is solved.<br>
 <br>
 <img src="solv.png"><br>
 <br>
