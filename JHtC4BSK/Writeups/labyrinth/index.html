@@ -1,0 +1,75 @@
+<title>Labyrinth</title>
+<style>
+img{
+	max-width:500px;
+	max-height:700px;
+}
+</style>
+=== Labyrinth ===<br>
+<br>
+<img src="intro.png"><br>
+<br>
+Player is presented with a simple screen - an ascii map, <br>
+with @ marking the spot they're standing in and # used for walls.<br>
+<br>
+<img src="1.png"> <img src="2.png"><br>
+<br>
+The objective, as can be seen from a piece of the flag visible on the<br>
+right side of the map, is to get to the other side of the maze. <br>
+<br>
+But, a game where you simply have to find a way through isn't very interesting, <br>
+so the maze is generated in such a way that there's never a way from where<br>
+the player is standing, to where the flag is.<br>
+<br>
+<img src="access.png"> <img src="access2.png"><br>
+<br>
+So, now that we know that what we're supposed to do is impossible without cheating, what's the first thing to do? Decomiple the .pyc file. <br>
+Python is very nice in this regard, as the sourcecode obtained this way is usually almost identical to the original code. <br>
+On the other hand, Python also supports unicode characters in variable names.<br>
+<br>
+<img src="code.png" style='max-width:1200px;'><br>
+<br>
+That doesn't look very inviting.<br>
+And while the original does run, the decompiled version isn't always as successful.<br>
+<br>
+So, let's use an alternative approach.<br>
+The game seems to be connecting somewhere, possibly downloading the map (which the flag is a part of).<br>
+Maybe this is as easy as looking at the network traffic?<br>
+<br>
+<img src="sniff_1.png" style='max-height:500px;'><br>
+(blue = client -> server; pink = server -> client)<br>
+<br>
+Looks pretty simple. Except for the column id's, and the authentication sequence in the beginning. <br>
+<br>
+<img src="sniff_2.png" style='max-height:500px;'><br>
+<br>
+Unfortunately for us, the map is loaded on demand. <br>
+(The client requests missing columns when they are actually <br>
+ needed - when player moves enough to trigger scrolling)<br>
+<br>
+We can't read the map from the network traffic and we can't write our own client because we have no idea what happend to the column id's. <br>
+(Side note: the server will kick players requesting columns too far away from their position, and we wouldn't know the order anyways)<br>
+<br>
+But, let's take another look at that screenshot. <br>
+<br>
+<img src="sniff_3.png" style='max-height:500px;'><br>
+<br>
+The client seems to only be sending horizontal movements, so the server can't check whether or not the player is moving through walls!<br>
+<br>
+(It could check if it's possible to get as far as the client did if
+ it mapped out how far to the right it's ever possible to get in the maze, <br>
+ but, spoiler alert, it does not.)<br>
+<br>
+Let's remove the ceiling from the map using python for a simple mitm attack. <br>
+<br>
+<img src="mitm.png"><br>
+<br>
+After adding ```127.0.0.1 jhtc4bsk.jhtc.pl``` to /etc/hosts, <br>
+and starting the program, the task is solved.<br>
+<br>
+<img src="solv.png"><br>
+<br>
+Additional links:<br>
+<a href="traffic_short.txt">traffic_short.txt</a> - Shortened version of the network capture, with notes<br>
+<a href="traffic.txt">traffic.txt</a> - Full network traffic capture<br>
+<a href="code.txt">code.txt</a> - Parts of the original sourcecode<br>

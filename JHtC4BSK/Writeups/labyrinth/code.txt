@@ -1,0 +1,50 @@
+====================== Authentication ======================
+
+print("Authenticating...")
+
+a = int(nc.read_until("\n"))
+b = int(nc.read_until("\n"))
+c = int(nc.read_until("\n"))
+d = int(nc.read_until("\n"))
+
+resp_a = b ^ a ^ modinv(c, prime_m1)
+resp_b = c ^ d ^ modinv(b, prime_m2)
+
+nc.write(str(min(resp_a, resp_b)) + "\n")
+nc.write(str(max(resp_a, resp_b)) + "\n")
+
+result = nc.read_until("\n")
+if result != "K":
+    print("Fail.")
+    os._exit(0)
+print("Success")
+
+col_key = resp_a ^ resp_b ^ prime_m2
+
+======================   Map loading   ======================
+
+while c_o + c_w >= columns_loaded_up_to:
+    col_enc = modinv(columns_loaded_up_to+2, prime_m3) ^ col_key
+    nc.write("C " + str(col_enc) + "\n")
+    col = nc.read_until("\n")
+    for i in range(h):
+        game_map[i][columns_loaded_up_to] = int(col[i]);
+        columns_loaded_up_to +=  1
+
+======================     Moving      ======================
+
+def send_move(x_c):
+    if x_c == 1:
+        nc.write("R")
+    else:
+        nc.write("L")
+
+def game_move(x_c, y_c):
+    global x,y
+    if game_map[y+y_c][x+x_c] == 0: 
+	# (...)
+        y = y + y_c
+        x = x + x_c
+        if x_c != 0:
+            send_move(x_c)
+        print_map()
