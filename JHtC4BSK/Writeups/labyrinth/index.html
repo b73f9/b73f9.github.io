@@ -1,28 +1,37 @@
+<html>
+<head>
 <title>Labyrinth</title>
 <style>
 img{
 	max-width:500px;
 	max-height:700px;
 }
-*{
-background-color: #abb8c2;
-    font-family: 'Arial', 'Helvetica', sans-serif;
+body{
+	background-color: #abb8c2;
+	font-family: 'Arial', 'Helvetica', sans-serif;
+	width:1010px;
+	padding-left:5px;
+	margin-left:auto;
+	margin-right:auto;
+	margin-top:30px;
+	padding-bottom:50px;
 }
 </style>
-=== Labyrinth ===<br>
-<br>
+</head>
+<body>
+<h1>Labyrinth</h1>
 <img src="intro.png"><br>
 <br>
-Player is presented with a simple screen - an ascii map, <br>
+Player is presented with a simple screen - an ascii map,
 with @ marking the spot they're standing in and # used for walls.<br>
 <br>
 <img src="1.png"> <img src="2.png"><br>
 <br>
-The objective, as can be seen from a piece of the flag visible on the<br>
+The objective, as can be seen from a piece of the flag visible on the
 right side of the map, is to get to the other side of the maze. <br>
 <br>
-But, a game where you simply have to find a way through isn't very interesting, <br>
-so the maze is generated in such a way that there's never a way from where<br>
+But, a game where you simply have to find a way through isn't very interesting, 
+so the maze is generated in such a way that there's never a<br> way from where
 the player is standing, to where the flag is.<br>
 <br>
 <img src="access.png"> <img src="access2.png"><br>
@@ -31,25 +40,22 @@ So, now that we know that what we're supposed to do is impossible without cheati
 Python is very nice in this regard, as the sourcecode obtained this way is usually almost identical to the original code. <br>
 On the other hand, Python also supports unicode characters in variable names.<br>
 <br>
-<img src="code.png" style='max-width:1200px;'><br>
+<img src="code.png" style='max-width:1003px;'><br>
 <br>
-That doesn't look very inviting.<br>
+That doesn't look very inviting.
 And while the original does run, the decompiled version isn't always as successful.<br>
 <br>
-So, let's use an alternative approach.<br>
+<b>So, let's use an alternative approach.</b><br>
 The game seems to be connecting somewhere, possibly downloading the map (which the flag is a part of).<br>
 Maybe this is as easy as looking at the network traffic?<br>
 <br>
-<img src="sniff_1.png" style='max-height:500px;'><br>
+<img src="sniff_1.png" style='max-height:500px;'> <img src="sniff_2.png" style='max-height:500px;'><br>
 (blue = client -> server; pink = server -> client)<br>
 <br>
-Looks pretty simple. Except for the column id's, and the authentication sequence in the beginning. <br>
+Except for the column id's, and the authentication sequence in the beginning, this looks pretty simple - client is asking for and then receiving<br>column descriptions. <br>
 <br>
-<img src="sniff_2.png" style='max-height:500px;'><br>
-<br>
-Unfortunately for us, the map is loaded on demand. <br>
-(The client requests missing columns when they are actually <br>
- needed - when player moves enough to trigger scrolling)<br>
+Unfortunately, client requests missing columns when they are actually 
+ needed - when player moves enough to trigger scrolling<br>
 <br>
 We can't read the map from the network traffic and we can't write our own client because we have no idea what happend to the column id's. <br>
 (Side note: the server will kick players requesting columns too far away from their position, and we wouldn't know the order anyways)<br>
@@ -66,18 +72,19 @@ The client seems to only be sending horizontal movements, so the server can't ch
 <br>
 Let's remove the ceiling from the map using python for a simple mitm attack. <br>
 <br>
-<img src="mitm.png"><br>
+<img src="mitm.png"> <img src="solv.png"><br>
 <br>
-What does this code do? <br>It listens on port 31337 for incoming connections, and when one is estabilished, 
-it connects to the original labyrinth server relaying traffic back and forth. <br>
-When the authentication success message is detected, it starts changing every message coming from the server<br> so that they start with a 0 - effectively removing the ceiling from the map.<br>(at that point, server only responds with column descriptions, or kick messages, we don't care what happens if we get kicked)
+<b>What does this code do?</b> <br>It listens on port 31337 for incoming connections, and when one is estabilished, 
+it connects to the original labyrinth server relaying traffic<br> back and forth. 
+When the authentication success message is detected, it starts changing every message coming from the server<br> so that they start with a 0 - effectively removing ceiling from the map.<br>(at that point, server only responds with column descriptions, or kick messages, we don't care what happens if we get kicked)
 <br>
-<br>(Side note: this code assumes that the column descriptions are received entirely, and one by one. <br>This doesn't always have to be the case, but it works well enough.)<br><br>
+<br>(Side note: this code assumes that the column descriptions are received entirely, and one by one. <br>This doesn't always have to be the case, but it works well enough here.)<br><br>
 After adding "127.0.0.1 jhtc4bsk.jhtc.pl" to /etc/hosts and starting the program, the task is solved.<br>
 <br>
-<img src="solv.png"><br>
 <br>
 Additional links:<br>
 <a href="traffic_short.txt">traffic_short.txt</a> - Shortened version of the network capture, with notes<br>
 <a href="traffic.txt">traffic.txt</a> - Full network traffic capture<br>
 <a href="code.txt">code.txt</a> - Parts of the original sourcecode<br>
+</body>
+</html>
