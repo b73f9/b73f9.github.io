@@ -22,13 +22,12 @@ body{
 <h1>Labyrinth</h1>
 <img src="intro.png"><br>
 <br>
-Player is presented with a simple screen - an ascii map,
-with @ marking the spot they're standing in and # used for walls.<br>
+Aftere starting the game, we're presented with a map (@ - player, # - walls).<br>
 <br>
 <img src="1.png"> <img src="2.png"><br>
 <br>
 The objective, as can be seen from a piece of the flag visible on the
-right side of the map, is to get to the other side of the maze. <br>
+right side of the screen, is to get to the other side of the maze. <br>
 <br>
 But, a game where you simply have to find a way through isn't very interesting, 
 so the maze is generated in such a way that there's never a<br> way from where
@@ -43,7 +42,7 @@ On the other hand, Python also supports unicode characters in variable names.<br
 <img src="code.png" style='max-width:1003px;'><br>
 <br>
 That doesn't look very inviting.
-And while the original does run, the decompiled version isn't always as successful.<br>
+And while the original does run, decompiled version isn't always as successful.<br>
 <br>
 <b>So, let's use an alternative approach.</b><br>
 The game seems to be connecting somewhere, possibly downloading the map (which the flag is a part of).<br>
@@ -52,10 +51,10 @@ Maybe this is as easy as looking at the network traffic?<br>
 <img src="sniff_1.png" style='max-height:500px;'> <img src="sniff_2.png" style='max-height:500px;'><br>
 (blue = client -> server; pink = server -> client)<br>
 <br>
-Except for the column id's, and the authentication sequence in the beginning, this looks pretty simple - client is asking for and then receiving<br>column descriptions. <br>
+Except for the column id's and the authentication sequence in the beginning, this looks pretty simple - client is asking for and then receiving<br>column descriptions. <br>
 <br>
 Unfortunately, client requests missing columns when they are actually 
- needed - when player moves enough to trigger scrolling<br>
+ needed - when the character moves enough to trigger scrolling<br>
 <br>
 We can't read the map from the network traffic and we can't write our own client because we have no idea what happend to the column id's. <br>
 (Side note: the server will kick players requesting columns too far away from their position, and we wouldn't know the order anyways)<br>
@@ -64,7 +63,7 @@ But, let's take another look at that screenshot. <br>
 <br>
 <img src="sniff_3.png" style='max-height:500px;'><br>
 <br>
-The client seems to only be sending horizontal movements, so the server can't check whether or not the player is moving through walls!<br>
+Looks like the client is only sending horizontal movements. This means that the server doesn't have enough information to check whether or not the player is moving through walls!<br>
 <br>
 (It could check if it's possible to get as far as the client did if
  it mapped out how far to the right it's ever possible to get in the maze, <br>
